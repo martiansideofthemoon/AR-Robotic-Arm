@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ik.hpp"
 
+float K = 3.14159265 / 180.0;
 
 void ik_t::update_all_nodes(void)
 {
@@ -9,7 +10,23 @@ void ik_t::update_all_nodes(void)
   //! Compute T, invT, abs_pos for all nodes in the node_list
   //! Assume the theta's for all the nodes have velid values.
   //! Compute and assign the end effector position to end_effector.
-  
+  node_list[0].T = AngleAxisf(K*node_list[0].theta[0], Vector3f::UnitX()) *
+                   AngleAxisf(K*node_list[0].theta[1], Vector3f::UnitY()) *
+                   AngleAxisf(K*node_list[0].theta[2], Vector3f::UnitZ());
+  node_list[0].invT = AngleAxisf(-K*node_list[0].theta[2], Vector3f::UnitZ()) *
+                      AngleAxisf(-K*node_list[0].theta[1], Vector3f::UnitY()) *
+                      AngleAxisf(-K*node_list[0].theta[0], Vector3f::UnitX());
+  node_list[0].abs_pos = Vector3f(0, 0, 0);
+  for (int i = 1; i < num_bones; i++) {
+    node_list[i].T = AngleAxisf(K*node_list[i].theta[0], Vector3f::UnitZ()) *
+                     Translation3f(bone_length, 0, 0) *
+                     node_list[i-1].T;
+    node_list[i].invT = node_list[i-1].invT *
+                        Translation3f(-1*bone_length, 0, 0) *
+                        AngleAxisf(-K*node_list[i].theta[0], Vector3f::UnitZ());
+    node_list[i].abs_pos = node_list[i].invT * Vector3f(0, 0, 0);
+  }
+  end_effector = node_list[num_bones - 1].invT * Vector3f(bone_length, 0, 0);
 }
 
 const Vector3f& ik_t::get_end_effector(void)
