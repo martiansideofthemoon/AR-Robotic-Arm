@@ -52,7 +52,7 @@ void ik_t::update(void)
 
 	Vector3f endPos = end_effector;
 	Vector3f diff = tmpTarget - endPos;
-  std::cout << diff.norm() << std::endl;
+	std::cout << diff.norm() << std::endl;
 
 	float maxAngle = 360.0f/(float)num_bones;
 
@@ -69,27 +69,29 @@ void ik_t::update(void)
 			//Ti.setIdentity();
 			//for (int j = 0; j < i; j++)
 			//Ti = Ti * nodelist[j].T;
-      Vector3f output;
-      if (i < 3) {
-        // dofs for the root node
-        Vector3f *rot_axis;
-        if (i == 0) rot_axis = new Vector3f(1,0,0);
-        else if (i == 1) rot_axis = new Vector3f(0,1,0);
-        else rot_axis = new Vector3f(0,0,1);
-        Vector3f Pi(0, 0, 0);
-        Vector3f Dfi = node_list[0].invT.linear() * (*rot_axis);
-        output = Dfi.cross(end_effector - Pi);
-      } else {
-        Vector3f *rot_axis = new Vector3f(0,0,1);
-        Vector3f Pi(node_list[i-2].abs_pos);
-        Vector3f Dfi = node_list[i-2].invT.linear() * (*rot_axis);
-        output = Dfi.cross(end_effector - Pi);
-      }
+			Vector3f output;
+			if (i < 3) {
+				// dofs for the root node
+				Vector3f *rot_axis;
+				if (i == 0) rot_axis = new Vector3f(1,0,0);
+				else if (i == 1) rot_axis = new Vector3f(0,1,0);
+				else rot_axis = new Vector3f(0,0,1);
+				Vector3f Pi(0, 0, 0);
+				Vector3f Dfi = node_list[0].invT.linear() * (*rot_axis);
+				output = Dfi.cross(end_effector - Pi);
+			} else {
+				Vector3f *rot_axis = new Vector3f(0,0,1);
+				Vector3f Pi(node_list[i-2].abs_pos);
+				Vector3f Dfi = node_list[i-2].invT.linear() * (*rot_axis);
+				output = Dfi.cross(end_effector - Pi);
+			}
 
 			jacobian(0,i) = output(0);
 			jacobian(1,i) = output(1);
 			jacobian(2,i) = output(2);
 		}
+
+		std::cerr << jacobian <<std::endl;
 
 		MatrixXf invJ;
 		JacobiSVD<MatrixXf> svd(jacobian, ComputeThinU | ComputeThinV);
