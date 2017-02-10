@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   nc3<<-30.0;
   nc4<<-40.0;
   //std::cerr<<nc2.size()<<std::endl;
-  ik_node_t n1(3,Vector3f(0.0,90,0));
+  ik_node_t n1(3,Vector3f(0.0,180,0));
   ik_node_t n2(1,nc2);
   ik_node_t n3(1,nc3);
   ik_node_t n4(1,nc4);
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   kinch.add_node(n2);
   kinch.add_node(n3);
   kinch.add_node(n4);	      
-  kinch.target = Vector3f(0,7.0,100.0);
+  kinch.target = Vector3f(100,7.0,100.0);
 
   kinch.init();
   
