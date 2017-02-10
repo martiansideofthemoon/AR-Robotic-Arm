@@ -16,21 +16,21 @@ void ik_t::update_all_nodes(void)
 	                    AngleAxisf(K*node_list[0].theta[1], Vector3f::UnitY()) *
 	                    AngleAxisf(K*node_list[0].theta[0], Vector3f::UnitX());
 	node_list[0].abs_pos = Vector3f(0, 0, 0);
-	std::cerr << node_list[0].T.matrix() <<std::endl;
-	std::cerr << node_list[0].abs_pos.matrix() << std::endl;
+	// std::cerr << node_list[0].T.matrix() <<std::endl;
+	// std::cerr << node_list[0].abs_pos.matrix() << std::endl;
 	for (int i = 1; i < num_bones; i++) {
-		node_list[i].T = AngleAxisf(K*node_list[i].theta[0], Vector3f::UnitZ()) *
-		                 Translation3f(bone_length, 0, 0) *
+		node_list[i].T = AngleAxisf(-K*node_list[i].theta[0], Vector3f::UnitZ()) *
+		                 Translation3f(-bone_length, 0, 0) *
 		                 node_list[i-1].T;
 		node_list[i].invT = node_list[i-1].invT *
 		                    Translation3f(bone_length, 0, 0) *
 		                    AngleAxisf(K*node_list[i].theta[0], Vector3f::UnitZ());
 		node_list[i].abs_pos = node_list[i].invT * Vector3f(0, 0, 0);
-		std::cerr << node_list[i].T.matrix() <<std::endl;
-		std::cerr << node_list[i].abs_pos.matrix() << std::endl;
+		// std::cerr << node_list[i].T.matrix() <<std::endl;
+		// std::cerr << node_list[i].abs_pos.matrix() << std::endl;
 	}
 	end_effector = node_list[num_bones - 1].invT * Vector3f(bone_length, 0, 0);
-	std::cerr << end_effector <<std::endl;
+	// std::cerr << end_effector <<std::endl;
 }
 
 const Vector3f& ik_t::get_end_effector(void)
@@ -52,14 +52,12 @@ void ik_t::update(void)
 
 	Vector3f endPos = end_effector;
 	Vector3f diff = tmpTarget - endPos;
-
+  std::cout << diff.norm() << std::endl;
 
 	float maxAngle = 360.0f/(float)num_bones;
 
-
-
 	for(int loop = 0; loop < 1; loop++) {
-		MatrixXf jacobian(diff.rows(), num_bones+2);
+		MatrixXf jacobian(diff.rows(), num_bones + 2);
 		jacobian.setZero();
 		float step = 1.0f;
 		float steprad = step*M_PI/180.0;
@@ -67,18 +65,30 @@ void ik_t::update(void)
 			//! TODO CS775
 			//! Construct the matrix jacobian
 			//! Remember there has to be a line in the Jacobian corresponding to each dof in your chain
-			
 			//AngleAxisf Ti;
 			//Ti.setIdentity();
 			//for (int j = 0; j < i; j++)
 			//Ti = Ti * nodelist[j].T;
-			Vector3f Df4f5f6 = Matrix3f(node_list[i].T.linear()) * Vector3f(0,0,1);
-			Vector3f Pi(node_list[i].T.translation());
-			Vector3f Df1f2f3 = Df4f5f6.cross(end_effector - Pi);
+      Vector3f output;
+      if (i < 3) {
+        // dofs for the root node
+        Vector3f *rot_axis;
+        if (i == 0) rot_axis = new Vector3f(1,0,0);
+        else if (i == 1) rot_axis = new Vector3f(0,1,0);
+        else rot_axis = new Vector3f(0,0,1);
+        Vector3f Pi(0, 0, 0);
+        Vector3f Dfi = node_list[0].invT.linear() * (*rot_axis);
+        output = Dfi.cross(end_effector - Pi);
+      } else {
+        Vector3f *rot_axis = new Vector3f(0,0,1);
+        Vector3f Pi(node_list[i-2].abs_pos);
+        Vector3f Dfi = node_list[i-2].invT.linear() * (*rot_axis);
+        output = Dfi.cross(end_effector - Pi);
+      }
 
-			jacobian(0,i) = Df1f2f3(0);
-			jacobian(1,i) = Df1f2f3(1);
-			jacobian(2,i) = Df1f2f3(2);
+			jacobian(0,i) = output(0);
+			jacobian(1,i) = output(1);
+			jacobian(2,i) = output(2);
 		}
 
 		MatrixXf invJ;
