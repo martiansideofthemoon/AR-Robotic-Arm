@@ -22,15 +22,17 @@
 //! not be displayed. OpenGL units.
 #define VIEW_DISTANCE_MAX		10000.0
 
+typedef Matrix<float, 1, 1> Vector1f;
+
 // Drawing.
 
 int gDrawRotate = FALSE;
-float gDrawRotateAngle = 0;			
+float gDrawRotateAngle = 0;
 int gARTImageSavePlease = FALSE;
 int gCallCountMarkerDetect = 0;
 
 extern int windowWidth;
-extern int windowHeight; 
+extern int windowHeight;
 
 extern ar_context_t art;
 extern ik_t kinch;
@@ -71,7 +73,7 @@ void draw_cube(void)
 	/* +x */ {1, 2, 6, 5},
 	/* -z */ {4, 5, 6, 7}
       };
-    
+
     glPushMatrix(); // Save world coordinate system.
     glRotatef(gDrawRotateAngle, 0.0f, 0.0f, 1.0f); // Rotate about z axis.
     glScalef(fSize, fSize, fSize);
@@ -108,8 +110,9 @@ void draw_cube_update(float timeDelta)
 //! TODO CS775
 //! Draw the kinematic chain kinch
 void draw_kin_chain(void)
-{    
-
+{
+  glColor3ub(0,0,0);
+  kinch.render();
 }
 
 void draw_axis(void)
@@ -137,21 +140,21 @@ void keyboard_func(unsigned char key, int x, int y)
 {
   int mode, threshChange = 0;
   AR_LABELING_THRESH_MODE modea;
-  
+
   switch (key)
     {
-    //Quit	
-    case 0x1B:						
+    //Quit
+    case 0x1B:
     case 'Q':
     case 'q':
       art.cleanup();
       exit(0);
       break;
-    //Cube, if drawn, starts rotating  
+    //Cube, if drawn, starts rotating
     case ' ':
       gDrawRotate = !gDrawRotate;
       break;
-    //Change image processing mode for ARToolkit  
+    //Change image processing mode for ARToolkit
     case 'X':
     case 'x':
       arGetImageProcMode(art.gARHandle, &mode);
@@ -162,14 +165,14 @@ void keyboard_func(unsigned char key, int x, int y)
       }
       arSetImageProcMode(art.gARHandle, mode);
       break;
-    //Log Camera capture FPS  
+    //Log Camera capture FPS
     case 'C':
     case 'c':
       ARLOGe("*** Camera - %f (frame/sec)\n", (double)gCallCountMarkerDetect/arUtilTimer());
       gCallCountMarkerDetect = 0;
       arUtilTimerReset();
       break;
-    //Change binarization thresholding mode for ARToolkit  
+    //Change binarization thresholding mode for ARToolkit
     case 'a':
     case 'A':
       arGetLabelingThreshMode(art.gARHandle, &modea);
@@ -183,32 +186,32 @@ void keyboard_func(unsigned char key, int x, int y)
       }
       arSetLabelingThreshMode(art.gARHandle, modea);
       break;
-    //Change threshold mode for ARToolkit  
+    //Change threshold mode for ARToolkit
     case '-':
       threshChange = -5;
       break;
-    //Change threshold mode for ARToolkit     
+    //Change threshold mode for ARToolkit
     case '+':
     case '=':
       threshChange = +5;
       break;
-    //Enable/Disable Debug mode  
+    //Enable/Disable Debug mode
     case 'D':
     case 'd':
       arGetDebugMode(art.gARHandle, &mode);
       arSetDebugMode(art.gARHandle, !mode);
       break;
-    //Save an augmented image  
+    //Save an augmented image
     case 's':
     case 'S':
       if (!gARTImageSavePlease) gARTImageSavePlease = TRUE;
       break;
-    //Update the Kinematic Chain    
+    //Update the Kinematic Chain
     case 'u':
       kinch.update();
       glutPostRedisplay();
       break;
-    //Reset the Kinematic Chain. Use this, to interactively break free of gimbal locks.  
+    //Reset the Kinematic Chain. Use this, to interactively break free of gimbal locks.
     case 'r':
       kinch.reset();
       glutPostRedisplay();
@@ -225,7 +228,7 @@ void keyboard_func(unsigned char key, int x, int y)
       if (threshhold < 0) threshhold = 0;
       if (threshhold > 255) threshhold = 255;
       arSetLabelingThresh(art.gARHandle, threshhold);
-    } 
+    }
 }
 
 void visibility_func(int visible)
@@ -244,7 +247,7 @@ void reshape_func(int w, int h)
 {
   windowWidth = w;
   windowHeight = h;
-  
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }
@@ -253,14 +256,14 @@ void display_func(void)
 {
   ARdouble p[16];
   ARdouble m[16];
-  
+
   // Select correct buffer for this context.
   glDrawBuffer(GL_BACK);
   // Clear the buffers for new frame.
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-  
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   arglDispImage(art.gArglSettings);
-  
+
   // Setup Projection transformation.
   arglCameraFrustumRH(&(art.gCparamLT->param), VIEW_DISTANCE_MIN, VIEW_DISTANCE_MAX, p);
   glMatrixMode(GL_PROJECTION);
@@ -270,21 +273,21 @@ void display_func(void)
   glLoadMatrixd(p);
 #endif
   glMatrixMode(GL_MODELVIEW);
-  
+
   glEnable(GL_DEPTH_TEST);
-  
+
   // Viewing transformation.
   glLoadIdentity();
   // Lighting and geometry that _moves with_ the camera should go here.
   // (i.e., must be specified before viewing transformations.)
   // none
-  
+
   Matrix4f mat, mat2;
   Matrix4f imat, imat2;
 
   //If pattern 1 is detected, do this
   if (art.patt1.gPatt_found) {
-    
+
     // Calculate the camera position relative to the marker.
     // Replace VIEW_SCALEFACTOR with 1.0 to make one drawing unit equal to 1.0 ARToolKit units (usually millimeters).
     arglCameraViewRH((const ARdouble (*)[4])art.patt1.gPatt_trans, m, VIEW_SCALEFACTOR);
@@ -301,20 +304,20 @@ void display_func(void)
       -art.patt1.gPatt_trans[2][0],-art.patt1.gPatt_trans[2][1],-art.patt1.gPatt_trans[2][2],-art.patt1.gPatt_trans[2][3],
       0.0,0.0,0.0,1.0;
     imat=mat.inverse();
- 
+
     // All lighting and geometry to be drawn relative to the marker goes here.
 
     //! TODO CS775
     //! Replace this cube by the kinematic chain
-	  draw_cube();
-    
+    draw_kin_chain();
+    draw_axis();
     glPopMatrix();
-    
+
   } // gPatt_found
-  
+
   //If pattern 2 is detected, do this
   if (art.patt2.gPatt_found) {
-    
+
     // Calculate the camera position relative to the marker.
     // Replace VIEW_SCALEFACTOR with 1.0 to make one drawing unit equal to 1.0 ARToolKit units (usually millimeters).
     arglCameraViewRH((const ARdouble (*)[4])art.patt2.gPatt_trans, m, VIEW_SCALEFACTOR);
@@ -335,16 +338,16 @@ void display_func(void)
     //Get the coordinates of the target in the frame of the marker in which the Kinematic Chain
     //is being drawn.
     Vector4f target;
- 
+
     //! TODO CS775
  	  //Set that as the goal for the kinematic chain
-   
+
     //! TODO CS775
    	//Update the chain
-    
+
     glPopMatrix();
   }
-  
+
   glutSwapBuffers();
 }
 
@@ -356,24 +359,24 @@ void idle_func(void)
   float s_elapsed;
   AR2VideoBufferT *image;
   ARdouble err;
-  
+
   int j, k, l;
-  
+
   // Find out how long since idle_func() last ran.
   ms = glutGet(GLUT_ELAPSED_TIME);
   s_elapsed = (float)(ms - ms_prev) * 0.001f;
   if (s_elapsed < 0.01f) return; // Don't update more often than 100 Hz.
   ms_prev = ms;
-  
+
   // Update drawing (for rotating cube)
   draw_cube_update(s_elapsed);
-  
+
   // Grab a video frame.
   if ((image = arVideoGetImage()) != NULL)
     {
-    
+
       arglPixelBufferDataUpload(art.gArglSettings, image->buff);
-      
+
       if (gARTImageSavePlease)
 	{
 	  char imageNumberText[15];
@@ -384,21 +387,21 @@ void idle_func(void)
 	    }
 	  gARTImageSavePlease = false;
         }
-      
+
       // Increment ARToolKit FPS counter.
-      gCallCountMarkerDetect++; 
-      
+      gCallCountMarkerDetect++;
+
       // Detect the markers in the video frame.
       if (arDetectMarker(art.gARHandle, image) < 0)
 		{
 	 	 exit(-1);
 		}
-      
+
       // Check through the marker_info array for highest confidence
       // visible marker matching our preferred pattern.
       k = -1;
       l = -1;
-      
+
       for (j = 0; j < art.gARHandle->marker_num; j++)
 		{
 	  		if (art.gARHandle->markerInfo[j].id == art.patt1.gPatt_id)
@@ -406,15 +409,15 @@ void idle_func(void)
 	      		if (k == -1 && l == -1) k = j; // First marker detected.
 	      		else if (art.gARHandle->markerInfo[j].cf > art.gARHandle->markerInfo[k].cf)
 					k = j; // Higher confidence marker detected.
-	    	} 
+	    	}
 	    	else if (art.gARHandle->markerInfo[j].id == art.patt2.gPatt_id)
 	    	{
 	     	 	if (l == -1 && k == -1) l = j; // First marker detected.
 	      		else if (art.gARHandle->markerInfo[j].cf > art.gARHandle->markerInfo[l].cf)
 					l = j; // Higher confidence marker detected.
-	   	 }			
+	   	 }
 		}
-		
+
       if (k != -1)
 		{
 	  		// Get the transformation between the marker and the real camera into gPatt_trans.
@@ -434,7 +437,7 @@ void idle_func(void)
       else
 		{
 	 	 art.patt2.gPatt_found = false;
-		}     
+		}
       // Tell GLUT the display has changed.
       glutPostRedisplay();
     }

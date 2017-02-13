@@ -39,7 +39,7 @@ int main(int argc, char **argv)
   kinch.add_node(n1);
   kinch.add_node(n2);
   kinch.add_node(n3);
-  kinch.add_node(n4);	      
+  kinch.add_node(n4);
   kinch.target = Vector3f(100,7.0,100.0);
 
   kinch.init();

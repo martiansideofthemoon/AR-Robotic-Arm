@@ -38,17 +38,17 @@ void setup_kinematic_chain(void)
   nc3<<30.0;
   nc4<<40.0;
   std::cerr<<nc2.size()<<std::endl;
-  ik_node_t n1(3,Vector3f(0.0,0.0,30.0));
+  ik_node_t n1(3,Vector3f(0.0,-45.0,0.0));
   ik_node_t n2(1,nc2);
   ik_node_t n3(1,nc3);
   ik_node_t n4(1,nc4);
-  
-  //kinch.add_node(n1);
-  //kinch.add_node(n2);
-  //kinch.add_node(n3);
-  //kinch.add_node(n4);
 
-  //kinch.init();
+  kinch.add_node(n1);
+  kinch.add_node(n2);
+  kinch.add_node(n3);
+  kinch.add_node(n4);
+
+  kinch.init();
 }
 
 int main(int argc, char** argv)
