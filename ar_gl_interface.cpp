@@ -332,19 +332,17 @@ void display_func(void)
       -art.patt2.gPatt_trans[1][0],-art.patt2.gPatt_trans[1][1],-art.patt2.gPatt_trans[1][2],-art.patt2.gPatt_trans[1][3],
       -art.patt2.gPatt_trans[2][0],-art.patt2.gPatt_trans[2][1],-art.patt2.gPatt_trans[2][2],-art.patt2.gPatt_trans[2][3],
       0.0,0.0,0.0,1.0;
-	imat2=mat.inverse();
-
+	  imat2 = mat2.inverse();
     //! TODO CS775
     //Get the coordinates of the target in the frame of the marker in which the Kinematic Chain
     //is being drawn.
-    Vector4f target;
-
+    Vector4f target = imat*mat2*Vector4f(0,0,0,1);
     //! TODO CS775
  	  //Set that as the goal for the kinematic chain
-
+    kinch.target = Vector3f(target[0]/target[3], target[1]/target[3], target[2]/target[3]);
     //! TODO CS775
    	//Update the chain
-
+    kinch.update();
     glPopMatrix();
   }
 
