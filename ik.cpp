@@ -150,6 +150,7 @@ void drawCylinder (const float x1, const float y1, const float z1, const float x
 	glPushMatrix();
 	glTranslatef(x1, y1, z1);
 	glRotatef(angle, -dy, dx, 0);
+	glutSolidSphere(8, 12, 12);
 	cylinder(radius, h);
 	glPopMatrix();
 }
@@ -170,9 +171,14 @@ void ik_t::render_bone(Vector3f v1, Vector3f v2)
 
 void ik_t::render(void)
 {
-	glColor3ub(0,0,255);
+	unsigned char c[3][3] = {
+		{255, 180, 180},
+		{180, 255, 180},
+		{180, 180, 255}
+	};
 	glPushMatrix();
 	for (int i = 0; i < num_bones; i++) {
+		glColor3ubv(c[i % 3]);
 		if (i < num_bones-1) {
 			render_bone(node_list[i].abs_pos, node_list[i+1].abs_pos);
 		} else {

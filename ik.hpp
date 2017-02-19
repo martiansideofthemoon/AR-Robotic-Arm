@@ -96,7 +96,7 @@ public:
   //! Default Constructor
   ik_t()
   {
-    num_bones=0; bone_length=10.0; num_dofs=0;
+    num_bones=0; bone_length=30.0; num_dofs=0;
     root=Vector3f(0.0,0.0,0.0);
   }
 

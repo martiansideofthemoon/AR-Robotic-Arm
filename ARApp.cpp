@@ -32,7 +32,7 @@ ik_t kinch;
 //Setup the kinematic chain
 void setup_kinematic_chain(void)
 {
-  kinch.bone_length=80;
+  kinch.bone_length=140;
   Vector1f nc2, nc3, nc4;
   nc2<<20.0;
   nc3<<30.0;

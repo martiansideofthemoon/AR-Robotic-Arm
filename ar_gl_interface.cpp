@@ -343,10 +343,10 @@ void draw_cube(void)
 		//! TODO CS775
 		//Update the chain
 		double x;
-		for(int i=0; i<20; i++) {
+		for(int i=0; i<200; i++) {
 			x = kinch.update();
 		}
-		std::cerr << kinch.update() <<std::endl;
+		std::cerr << x <<std::endl;
 
 		std::cerr << kinch.end_effector << std::endl << std::endl;
 		std::cerr << kinch.target << std::endl << std::endl;
