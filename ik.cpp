@@ -91,15 +91,22 @@ double ik_t::update(void)
 			jacobian(2,i) = output(2);
 		}
 
-		MatrixXf invJ;
+		// MatrixXf invJ;
+		MatrixXf invJ_LMA;
 		JacobiSVD<MatrixXf> svd(jacobian, ComputeThinU | ComputeThinV);
 		double tolerance = 1e-6 * std::max(jacobian.cols(), jacobian.rows()) * svd.singularValues().array().abs().maxCoeff();
 
+		double lambda = 10.0;
+
 		//! Inverting the Jacobian
-		invJ = svd.matrixV() * MatrixXf( (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0) ).asDiagonal() * svd.matrixU().adjoint();
+		// invJ = svd.matrixV() * MatrixXf( (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0) ).asDiagonal() * svd.matrixU().adjoint();
+		invJ_LMA = svd.matrixV()
+			* MatrixXf( (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array(), 0) ).asDiagonal()
+			* MatrixXf( (svd.singularValues().array() * svd.singularValues().array() + lambda*lambda).inverse() ).asDiagonal()
+			* svd.matrixU().adjoint();
 
 
-		VectorXf add = invJ*diff;
+		VectorXf add = invJ_LMA * diff;
 
 		//Updating the node thetas
 		node_list[0].theta[0] += add[0];

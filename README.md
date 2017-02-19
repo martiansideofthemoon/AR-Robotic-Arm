@@ -7,5 +7,5 @@ This assignment is the work of the authors, and has not been copied without givi
 ##Instructions:
 - Copy `Makefile.example` to `Makefile` and edit as required
 - `make` to compile
-- Calibrate camera using `calib_camera` from ARToolKit
+- Calibrate camera using `calib_camera` from ARToolKit and copy the calibration data to `data/camera_params.dat`
 - Run `./IKApp` and `./ARApp`

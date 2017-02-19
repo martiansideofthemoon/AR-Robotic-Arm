@@ -310,7 +310,7 @@ void draw_cube(void)
 		//! Replace this cube by the kinematic chain
 			draw_kin_chain();
 			draw_axis();
-			std::cerr << "E" << kinch.end_effector << std::endl << std::endl;
+			// std::cerr << "E" << kinch.end_effector << std::endl << std::endl;
 			glPopMatrix();
 
 	} // gPatt_found
@@ -348,8 +348,8 @@ void draw_cube(void)
 		}
 		std::cerr << x <<std::endl;
 
-		std::cerr << kinch.end_effector << std::endl << std::endl;
-		std::cerr << kinch.target << std::endl << std::endl;
+		// std::cerr << kinch.end_effector << std::endl << std::endl;
+		// std::cerr << kinch.target << std::endl << std::endl;
 
 		draw_cube_update(0.05);
 		draw_cube();
