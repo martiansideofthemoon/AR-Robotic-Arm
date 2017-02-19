@@ -38,7 +38,7 @@ const Vector3f& ik_t::get_end_effector(void)
 	return end_effector;
 }
 
-void ik_t::update(void)
+double ik_t::update(void)
 {
 	Vector3f tmpTarget = target;
 	Vector3f targetDiff = tmpTarget - root;
@@ -52,7 +52,7 @@ void ik_t::update(void)
 
 	Vector3f endPos = end_effector;
 	Vector3f diff = tmpTarget - endPos;
-  std::cout << diff.norm() << std::endl;
+  // std::cout << diff.norm() << std::endl;
 
 	float maxAngle = 360.0f/(float)num_bones;
 
@@ -111,6 +111,7 @@ void ik_t::update(void)
 			node_list[i-2].theta[0] += add[i];
 	}
 	update_all_nodes();
+	return diff.norm();
 }
 
 void ik_t::render_marker(Vector3f p)
@@ -128,16 +129,48 @@ void ik_t::render_marker(Vector3f p)
 	glPopMatrix();
 }
 
+void cylinder (const float radius, const float height) {
+	glPushMatrix();
+	float r = radius;
+	float h = height;
+	GLUquadricObj *quadratic;
+	quadratic = gluNewQuadric();
+	gluQuadricDrawStyle( quadratic, GLU_FILL);  
+	gluQuadricNormals( quadratic, GLU_SMOOTH);  
+	gluQuadricTexture( quadratic, GL_TRUE );   
+
+	gluCylinder(quadratic, (GLdouble)r, (GLdouble)r, (GLdouble)h, 12, 5);
+	glPopMatrix();
+}
+
+void drawCylinder (const float x1, const float y1, const float z1, const float x2, const float y2, const float z2, const float radius) {
+	float dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
+	float h = std::sqrt(dx*dx + dy*dy + dz*dz);
+	float angle = std::acos(dz/h)*180.0/M_PI;
+	glPushMatrix();
+	glTranslatef(x1, y1, z1);
+	glRotatef(angle, -dy, dx, 0);
+	cylinder(radius, h);
+	glPopMatrix();
+}
+
+void drawCylinder (const float* v1, const float* v2, const float radius) {
+	drawCylinder(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], radius);
+}
+
+
 void ik_t::render_bone(Vector3f v1, Vector3f v2)
 {
-	glBegin(GL_LINES);
-	glVertex3f(v1[0],v1[1],v1[2]);
-	glVertex3f(v2[0],v2[1],v2[2]);
-	glEnd();
+	// glBegin(GL_LINES);
+	// glVertex3f(v1[0],v1[1],v1[2]);
+	// glVertex3f(v2[0],v2[1],v2[2]);
+	// glEnd();
+	drawCylinder(v1[0],v1[1],v1[2], v2[0],v2[1],v2[2], 5);
 }
 
 void ik_t::render(void)
 {
+	glColor3ub(0,0,255);
 	glPushMatrix();
 	for (int i = 0; i < num_bones; i++) {
 		if (i < num_bones-1) {

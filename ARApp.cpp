@@ -18,8 +18,8 @@ typedef Matrix<float, 1, 1> Vector1f;
 
 // Preferences.
 bool windowed = true;           // Use windowed (true) or fullscreen mode (false) on launch.
-int windowWidth = 640;			// Initial window width, also updated during program execution.
-int windowHeight = 480;         // Initial window height, also updated during program execution.
+int windowWidth = 1280;			// Initial window width, also updated during program execution.
+int windowHeight = 720;         // Initial window height, also updated during program execution.
 int windowDepth = 32;			// Fullscreen mode bit depth.
 int windowRefresh = 0;			// Fullscreen mode refresh rate. Set to 0 to use default rate.
 
@@ -132,6 +132,31 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape_func);
     glutVisibilityFunc(visibility_func);
     glutKeyboardFunc(keyboard_func);
+
+    glEnable(GL_DEPTH_TEST);
+
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+
+    GLint shininess = 100;
+
+    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_LIGHTING);
+
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+    glEnable(GL_LIGHT0);
+
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glEnable(GL_COLOR_MATERIAL);
+
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable( GL_BLEND );
+
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
     
     glutMainLoop();
     

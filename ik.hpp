@@ -82,7 +82,7 @@ public:
   const Vector3f& get_end_effector(void);
 
   //! Solve IK and update the chain
-  void update(void);
+  double update(void);
 
   //! Draw a marker
   void render_marker(Vector3f p);
