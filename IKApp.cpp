@@ -39,7 +39,7 @@ int main(int argc, char **argv)
   kinch.add_node(n1);
   kinch.add_node(n2);
   kinch.add_node(n3);
-  kinch.add_node(n4);	      
+  kinch.add_node(n4);
   kinch.target = Vector3f(100,7.0,100.0);
 
   kinch.init();
@@ -52,6 +52,31 @@ int main(int argc, char **argv)
   glutDisplayFunc(display_func);
   glutReshapeFunc(reshape_func);
   glutKeyboardFunc(keyboard_func);
+  glEnable(GL_DEPTH_TEST);
+
+  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+
+  GLint shininess = 100;
+
+  GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+
+  glEnable(GL_NORMALIZE);
+  glEnable(GL_LIGHTING);
+
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+  glEnable(GL_LIGHT0);
+
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+  glEnable(GL_COLOR_MATERIAL);
+
+  // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  // glEnable( GL_BLEND );
+
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+  glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+  
   glutMainLoop();
       
   return 0;
